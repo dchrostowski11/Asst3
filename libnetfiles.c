@@ -32,6 +32,14 @@ int netopen(const char *pathname, int flags){
 		perror("couldn't create socket");
 	}
 	
+	//specify an address for the socket
+	struct sockaddr_in addr;
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(9878);
+	addr.sin_addr.s_addr = INADDR_ANY;
+	
+	
+	
 	
 }
 
