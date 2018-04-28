@@ -87,9 +87,7 @@ int netopen(const char *pathname, int flags){
 	}
 	
 	freeaddrinfo(servinfo);
-		
-	
-	
+			
 	/*	
 	openSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if(openSocket != 0){
