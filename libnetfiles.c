@@ -17,46 +17,70 @@
  * 
  */
 
-int main(){
-	int errno;
-/*	if(pathname == NULL){
-		errno = ENOENT;
-		perror(strerror(errno));
-		return -1;
-	}
-
-	const char* am;
-	switch(flags){
-		case 1:
-			am = "O_RDONLY";
-		case 2:
-			am = "O_WRONLY";
-		case 3:
-			am = "O_RDWR";
-		default:
-			perror("invalid access mode");
-	}
-*/
-	//create the socket
-	int network_socket = socket(AF_INET, SOCK_STREAM, 0);
-
-	//specify an address for the socket
+int netopen(const char* pathname, int flags){
+	//make sure that you find host	
 	struct sockaddr_in addr;
-	addr.sin_family = AF_INET;
-	addr.sin_port = htons(9878);
-	addr.sin_addr.s_addr = INADDR_ANY;
+
+	int client_socket = socket(AF_INET, SOCK_STREAM, 0);
+
+	if(client_socket <0){
+		perror("error creating socket");
+		return -1;
+	}
 	
-	//call the connect function
-	int connection = connect(network_socket, (struct sockaddr *) &addr, sizeof(addr));
-	if(connection == -1){
-		perror("Unable to connect");
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(9886);
+	
+	if(connect(client_socket, (struct sockaddr*) &addr, sizeof(addr))<0){
+
+		perror("could not connect");
+		return -1;
+	} 
+
+	char buf[strlen(pathname) + 10 + 2];
+
+	buf[0] = 'O';
+	buf[1] = '&';
+	int i;
+	for(i = 0; i<strlen(pathname); ++i){
+		buf[2+i] = pathname[i];
+	}
+
+	buf[i+2] = '&';
+	buf[i+3] = flags + '0';
+
+	if(send(client_socket, buf, strlen(buf), 0)<0){
+		perror("failed to sed");
 		return -1;
 	}
 
-	int file_descriptor = 0;
+	int k = 0;
+	if(read(client_socket, &k, sizeof(k)) < 0){
+		perror("reading error");
+	}
 	
-	printf("The server sent this data: %d\n", file_descriptor);
-	close(network_socket);
+	if(k>0){
+		close(client_socket);
+		return ntohl(k);
+	}else{
+		perror("invalied file desciptor");
+		return -1;
+	}
+}	
+
+
+int main(int argc, char** argv){
+	if(argc!=2){
+		perror("not enough arguments");
+		return -1;
+	}
+
+	int fd = netopen(argv[1], 1);
+	printf("FILE DESCRIPTOR: %d\n", fd);
+	return 0;
+
+}
+twork_socket);
 	return file_descriptor;
 }
 
